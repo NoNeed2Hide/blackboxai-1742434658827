@@ -1,0 +1,25 @@
+{
+  "hero": {
+    "title": "Sarah Johnson",
+    "subtitle": "Full Stack Developer",
+    "image": "https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg"
+  },
+  "about": "I am a passionate developer with expertise in building modern web applications. With a strong foundation in both frontend and backend technologies, I create scalable and user-friendly solutions that solve real-world problems.",
+  "projects": [
+    {
+      "title": "E-Commerce Platform",
+      "description": "A full-stack e-commerce solution built with React and Node.js, featuring real-time inventory management and secure payment processing.",
+      "image": "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg"
+    },
+    {
+      "title": "Task Management App",
+      "description": "A collaborative task management application with real-time updates, built using Vue.js and Firebase.",
+      "image": "https://images.pexels.com/photos/3183153/pexels-photo-3183153.jpeg"
+    },
+    {
+      "title": "Portfolio Generator",
+      "description": "An automated portfolio generator that creates beautiful, responsive websites from JSON data.",
+      "image": "https://images.pexels.com/photos/3183132/pexels-photo-3183132.jpeg"
+    }
+  ]
+}
