@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen p-6 md:p-12">
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-8">
+            <h1 class="text-3xl font-bold mb-8 text-center">Portfolio Admin Panel</h1>
+
+            <!-- Admin Token Input -->
+            <div class="mb-8">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="adminToken">
+                    Admin Token
+                </label>
+                <input type="password" id="adminToken" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your admin token">
+            </div>
+
+            <form id="contentForm" class="space-y-8">
+                <!-- Hero Section -->
+                <div class="border-b pb-6">
+                    <h2 class="text-2xl font-semibold mb-4">Hero Section</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Title</label>
+                            <input type="text" name="heroTitle" class="w-full px-3 py-2 border rounded-lg" onclick="this.select()">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Subtitle</label>
+                            <input type="text" name="heroSubtitle" class="w-full px-3 py-2 border rounded-lg" onclick="this.select()">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Image URL</label>
+                            <input type="text" name="heroImage" class="w-full px-3 py-2 border rounded-lg" onclick="this.select()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About Section -->
+                <div class="border-b pb-6">
+                    <h2 class="text-2xl font-semibold mb-4">About Section</h2>
+                    <textarea name="about" rows="4" class="w-full px-3 py-2 border rounded-lg" onclick="this.select()"></textarea>
+                </div>
+
+                <!-- Projects Section -->
+                <div>
+                    <h2 class="text-2xl font-semibold mb-4">Projects</h2>
+                    <div id="projectsContainer">
+                        <!-- Projects will be dynamically added here -->
+                    </div>
+                    <button type="button" id="addProject" class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                        Add New Project
+                    </button>
+                </div>
+
+                <!-- Save Button -->
+                <div class="mt-8">
+                    <button type="submit" class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 font-semibold">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+
+            <!-- Status Message -->
+            <div id="statusMessage" class="mt-4 text-center hidden">
+                <p class="px-4 py-2 rounded"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Template (Hidden) -->
+    <template id="projectTemplate">
+        <div class="project-item border rounded-lg p-4 mb-4">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Project Title</label>
+                    <input type="text" name="projectTitle" class="w-full px-3 py-2 border rounded-lg" onclick="this.select()">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Project Description</label>
+                    <textarea name="projectDescription" rows="3" class="w-full px-3 py-2 border rounded-lg" onclick="this.select()"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Project Image URL</label>
+                    <input type="text" name="projectImage" class="w-full px-3 py-2 border rounded-lg" onclick="this.select()">
+                </div>
+                <button type="button" class="remove-project bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                    Remove Project
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // Function to show status message
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('statusMessage');
+            const statusP = statusDiv.querySelector('p');
+            statusDiv.classList.remove('hidden');
+            statusP.textContent = message;
+            statusP.className = `px-4 py-2 rounded ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Function to add new project
+        function addProject(data = {}) {
+            const template = document.getElementById('projectTemplate');
+            const projectsContainer = document.getElementById('projectsContainer');
+            const clone = template.content.cloneNode(true);
+            
+            // Fill in data if provided
+            if (data.title) {
+                clone.querySelector('[name="projectTitle"]').value = data.title;
+                clone.querySelector('[name="projectDescription"]').value = data.description;
+                clone.querySelector('[name="projectImage"]').value = data.image;
+            }
+
+            // Add remove functionality
+            clone.querySelector('.remove-project').addEventListener('click', function(e) {
+                e.target.closest('.project-item').remove();
+            });
+
+            projectsContainer.appendChild(clone);
+        }
+
+        // Load content when page loads
+        async function loadContent() {
+            try {
+                const response = await fetch('/api/content');
+                const data = await response.json();
+
+                // Fill in hero section
+                document.querySelector('[name="heroTitle"]').value = data.hero.title;
+                document.querySelector('[name="heroSubtitle"]').value = data.hero.subtitle;
+                document.querySelector('[name="heroImage"]').value = data.hero.image;
+
+                // Fill in about section
+                document.querySelector('[name="about"]').value = data.about;
+
+                // Fill in projects
+                document.getElementById('projectsContainer').innerHTML = '';
+                data.projects.forEach(project => addProject(project));
+            } catch (error) {
+                showStatus('Error loading content', true);
+            }
+        }
+
+        // Save content
+        async function saveContent(formData) {
+            const adminToken = document.getElementById('adminToken').value;
+            if (!adminToken) {
+                showStatus('Admin token is required', true);
+                return;
+            }
+
+            const projects = Array.from(document.querySelectorAll('.project-item')).map(item => ({
+                title: item.querySelector('[name="projectTitle"]').value,
+                description: item.querySelector('[name="projectDescription"]').value,
+                image: item.querySelector('[name="projectImage"]').value
+            }));
+
+            const content = {
+                hero: {
+                    title: formData.get('heroTitle'),
+                    subtitle: formData.get('heroSubtitle'),
+                    image: formData.get('heroImage')
+                },
+                about: formData.get('about'),
+                projects: projects
+            };
+
+            try {
+                const response = await fetch('/api/content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-token': adminToken
+                    },
+                    body: JSON.stringify(content)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save content');
+                }
+
+                showStatus('Content saved successfully');
+            } catch (error) {
+                showStatus('Error saving content', true);
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', loadContent);
+
+        document.getElementById('addProject').addEventListener('click', () => addProject());
+
+        document.getElementById('contentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveContent(new FormData(this));
+        });
+    </script>
+</body>
+</html>
